@@ -1,22 +1,9 @@
-import { ScraperClass } from "./classes/Scraper";
+import { ScraperClass } from "./classes/scraper/Scraper";
 import fs from "fs";
 import path from "path";
 import { PairingClass } from "./classes/Pairing";
+import { config } from "dotenv";
+import { DiscordClass } from "./classes/discord/Discord";
+config();
 
-const start = async () => {
-  const dir_path = path.join(__dirname, "event_results");
-  
-  if (!fs.existsSync(dir_path)) {
-    fs.mkdirSync(dir_path);
-  }
-
-  const scraper = new ScraperClass(
-    "https://rk9.gg/pairings/pSploGDVVtciEUExOo43"
-  );
-
-  await scraper.init();
-  const round_path = await scraper.generate_pairings();
-  const pairing = new PairingClass("Jamie Frankland", round_path);
-  //await pairing.get() => outputs found pairings
-};
-start();
+new DiscordClass(process.env.DISCORD_TOKEN || "");
