@@ -1,7 +1,14 @@
-import { Client, Events, GatewayIntentBits, Collection } from "discord.js";
+import {
+  Client,
+  Events,
+  GatewayIntentBits,
+  Collection,
+  EmbedBuilder,
+} from "discord.js";
 import { RegisterCommand } from "./commands/Register";
 import fs from "fs";
 import path from "path";
+import { Pairing } from "../../types/types";
 
 export class DiscordClass {
   private client: any;
@@ -55,6 +62,26 @@ export class DiscordClass {
           ephemeral: true,
         });
       }
+    });
+  }
+  public message_pairing(user_id: string, pairing: Pairing) {
+    const message = new EmbedBuilder()
+      .setTitle(`Pairing round ${pairing.round}`)
+      .setDescription(`Table ${pairing.table}`)
+      .addFields(
+        {
+          name: "Player 1",
+          value: `${pairing.player_1.name} ${pairing.player_1.score}`,
+          inline: true,
+        },
+        {
+          name: "Player 2",
+          value: `${pairing.player_2.name} ${pairing.player_2.score}`,
+          inline: true,
+        }
+      );
+    this.client.users.fetch(user_id, false).then((user: any) => {
+      user.send({ embeds: [message] });
     });
   }
 }

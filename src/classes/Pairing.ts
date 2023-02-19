@@ -4,7 +4,7 @@ import { Pairing } from "../types/types";
 export class PairingClass {
   public constructor(private name: string, private file_path: string) {}
 
-  public async get() {
+  public get() {
     const pairings = require(this.file_path);
 
     return pairings.filter((pairing: Pairing) => {

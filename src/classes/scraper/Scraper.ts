@@ -14,14 +14,9 @@ export class ScraperClass {
   public async init() {
     this.html = await this.get_html();
     this.event_name = await this.get_event_name();
-    this.dir_path = path.join(
-      __dirname,
-      "..",
-      "event_results",
-      this.event_name
-    );
+    this.dir_path = path.join(__dirname, "..", "event_results");
     await this.generate_event_folder();
-    this.round = await this.get_round();
+    this.round = "1"; //await this.get_round()
   }
 
   private async get_event_name() {
@@ -37,44 +32,48 @@ export class ScraperClass {
     if (!fs.existsSync(this.dir_path)) {
       fs.mkdirSync(this.dir_path);
     }
+    if (!fs.existsSync(`${this.dir_path}/${this.event_name}`)) {
+      fs.mkdirSync(`${this.dir_path}/${this.event_name}`);
+    }
   }
 
-  public async generate_pairings(): Promise<string> {
-    const $ = cheerio.load(this.html);
-    const masterPairings = $(`#P2R${this.round} > .row.row-cols-3.match`);
-    const pairings_array: any[] = [];
-    masterPairings.each((i, pair) => {
-      const data = $(pair)
-        .text()
-        .replace(/  /gm, "")
-        .split(/\r\n|\n|\r/gm)
-        .filter((el) => {
-          return el !== "" && !el.includes("pts");
-        });
+  public async generate_pairings(): Promise<string | boolean> {
+    const round_path = `${this.dir_path}/round_${this.round}.json`;
+    if (!fs.existsSync(round_path)) {
+      const $ = cheerio.load(this.html);
+      const masterPairings = $(`#P2R${this.round} > .row.row-cols-3.match`);
+      const pairings_array: any[] = [];
+      masterPairings.each((i, pair) => {
+        const data = $(pair)
+          .text()
+          .replace(/  /gm, "")
+          .split(/\r\n|\n|\r/gm)
+          .filter((el) => {
+            return el !== "" && !el.includes("pts");
+          });
 
-      if (!data[3]) {
-        data[3] = "";
-      }
-      const obj = {
-        round: this.round,
-        table: `#${data[3].replace("Table", "")}` || "",
-        player_1: {
-          name: `${data[0]} ${data[1]}` || "",
-          score: data[2] || "",
-        },
-        player_2: {
-          name: `${data[4]} ${data[5]}` || "",
-          score: data[6] || "",
-        },
-      };
+        if (!data[3]) {
+          data[3] = "";
+        }
+        const obj = {
+          round: this.round,
+          table: `${data[3].replace("Table", "")}` || "",
+          player_1: {
+            name: `${data[0]} ${data[1]}` || "",
+            score: data[2] || "",
+          },
+          player_2: {
+            name: `${data[4]} ${data[5]}` || "",
+            score: data[6] || "",
+          },
+        };
 
-      pairings_array.push(obj);
-    });
-    fs.writeFileSync(
-      `${this.dir_path}/round_${this.round}.json`,
-      JSON.stringify(pairings_array)
-    );
-    return `${this.dir_path}/round_${this.round}.json`;
+        pairings_array.push(obj);
+      });
+      fs.writeFileSync(round_path, JSON.stringify(pairings_array));
+      return round_path;
+    }
+    return false;
   }
 
   private async get_round() {
