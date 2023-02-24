@@ -5,7 +5,9 @@ import {
   Collection,
   EmbedBuilder,
 } from "discord.js";
+import { NewEventCommand } from "./commands/NewEvent";
 import { RegisterCommand } from "./commands/Register";
+
 import fs from "fs";
 import path from "path";
 import { Pairing } from "../../types/types";
@@ -17,6 +19,7 @@ export class DiscordClass {
     this.client = new Client({ intents: [GatewayIntentBits.Guilds] });
     this.client.commands = new Collection();
     this.client.commands.set(RegisterCommand.data.name, RegisterCommand);
+    this.client.commands.set(NewEventCommand.data.name, NewEventCommand);
     this.check_registered();
     this.on_interaction();
     this.on_ready();

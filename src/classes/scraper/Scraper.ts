@@ -7,7 +7,7 @@ export class ScraperClass {
   private html: string;
   private event_name: string;
   private dir_path: string;
-  private round: string;
+  private round: number;
 
   public constructor(private link: string) {}
 
@@ -16,7 +16,7 @@ export class ScraperClass {
     this.event_name = await this.get_event_name();
     this.dir_path = path.join(__dirname, "..", "event_results");
     await this.generate_event_folder();
-    this.round = "1"; //await this.get_round()
+    this.round = this.get_round();
   }
 
   private async get_event_name() {
@@ -38,7 +38,7 @@ export class ScraperClass {
   }
 
   public async generate_pairings(): Promise<string | boolean> {
-    const round_path = `${this.dir_path}/round_${this.round}.json`;
+    const round_path = `${this.dir_path}/${this.event_name}/round_${this.round}.json`;
     if (!fs.existsSync(round_path)) {
       const $ = cheerio.load(this.html);
       const masterPairings = $(`#P2R${this.round} > .row.row-cols-3.match`);
@@ -76,9 +76,9 @@ export class ScraperClass {
     return false;
   }
 
-  private async get_round() {
+  public get_round(): number {
     const $ = cheerio.load(this.html);
-    return $("#P2-tab").text().split(" ")[3];
+    return parseInt($("#P2-tab").text().split(" ")[3]);
   }
 
   private async get_html(): Promise<string> {
