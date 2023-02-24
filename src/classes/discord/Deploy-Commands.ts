@@ -1,13 +1,12 @@
 import { REST, Routes } from "discord.js";
 import { RegisterCommand } from "./commands/Register";
+import { NewEventCommand } from "./commands/NewEvent";
 import { config } from "dotenv";
-/* import { DiscordClass } from "./classes/discord/Discord"; */
 config();
-const commands = [];
-console.log(process.env.DISCORD_TOKEN);
+const commands: any[] = [];
 
 // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
-
+commands.push(NewEventCommand.data.toJSON());
 commands.push(RegisterCommand.data.toJSON());
 
 // Construct and prepare an instance of the REST module
